@@ -1,10 +1,11 @@
 import atexit
 import datetime
 import json
+import os
 import re
 import sqlite3
 
-DB = sqlite3.connect("loc.sqlite3")
+DB = sqlite3.connect(os.getenv("DATABASE_FILE", "loc.sqlite3"))
 atexit.register(DB.close)
 
 CURSOR = DB.cursor()
