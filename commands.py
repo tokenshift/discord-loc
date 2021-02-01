@@ -11,8 +11,11 @@ Display all entities and locations.
 Sets an entity's location. `{entity}` and `{location}` can be either names or
 numbers assigned by loc.
 
-`loc kill {entity}`
+`loc remove {entity}`
 Removes an entity from location tracking.
+
+`loc kill {entity}`
+Marks an entity as ~~dead~~ without removing them.
 
 `loc rename {entity} {new name}`
 Renames an entity.
@@ -68,9 +71,10 @@ class Commands:
             "update": True
         }
 
-    def kill(self, entity_name):
-        """Terminate an entity."""
+    def remove(self, entity_name):
+        """Remove an entity from tracking."""
         entity = Entity.find(self.channel_id, entity_name)
+
         if entity:
             entity.destroy()
 
@@ -80,6 +84,22 @@ class Commands:
             },
             "update": True
         }
+
+    def kill(self, entity_name):
+        """Mark an entity as killed."""
+        entity = Entity.find(self.channel_id, entity_name)
+
+        if entity:
+            entity.name = f'~~{entity.name}~~'
+            entity.save()
+
+        return {
+            "send": {
+                "embed": self.generate_embed()
+            },
+            "update": True
+        }
+
 
     def rename(self, entity_name, new_name):
         """Rename an entity."""
