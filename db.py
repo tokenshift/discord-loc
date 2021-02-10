@@ -131,7 +131,7 @@ class Entity:
         for entity in Entity.all(channel_id):
             if entity_id and entity_id == entity.id:
                 return entity
-            if entity_name == entity.name:
+            if entity_name.lower() == entity.name.lower():
                 return entity
 
         return None
@@ -143,8 +143,7 @@ class Entity:
                 SELECT IFNULL(MAX(id)+1,1)
                 FROM entities
                 WHERE channel_id = ?),
-                ?,
-                ?)""",
+                ?, ?)""",
             (channel_id, channel_id, entity_name))
         DB.commit()
         return Entity.get(CURSOR.lastrowid)
