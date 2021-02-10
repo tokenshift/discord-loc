@@ -90,7 +90,7 @@ class Commands:
         entity = Entity.find(self.channel_id, entity_name)
 
         if entity:
-            entity.name = f'~~{entity.name}~~'
+            entity.killed = True
             entity.save()
 
         return {
@@ -189,7 +189,10 @@ class Commands:
                 lines.append("*Empty*")
 
             for entity in location.get_entities():
-                lines.append(f'{entity.name} ({entity.id})')
+                if entity.killed:
+                    lines.append(f'~~{entity.name}~~ ({entity.id})')
+                else:
+                    lines.append(f'{entity.name} ({entity.id})')
 
         unassigned_entities = list([e for e in Entity.all(self.channel_id) if e.location_pk == None])
         if len(unassigned_entities) > 0:

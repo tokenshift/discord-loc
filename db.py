@@ -96,16 +96,9 @@ class Channel:
 
 
 class Entity:
-    def __init__(self, row):
-        (
-            self.pk,
-            self.id,
-            self.channel_id,
-            self.name,
-            self.location_pk,
-            self.created_at,
-            self.updated_at
-         ) = row
+    def __init__(self, attrs):
+        for k, v in attrs.items():
+            setattr(self, k, v)
 
     def all(channel_id):
         CURSOR.execute("""
@@ -114,7 +107,7 @@ class Entity:
             ORDER BY id""",
             (channel_id,))
         for row in CURSOR.fetchall():
-            yield Entity(row)
+            yield Entity(to_dict(row, CURSOR.description))
 
     def get(pk):
         CURSOR.execute("""
@@ -124,7 +117,7 @@ class Entity:
             (pk,))
         row = CURSOR.fetchone()
         if row:
-            return Entity(row)
+            return Entity(to_dict(row, CURSOR.description))
         else:
             return None
 
@@ -167,10 +160,11 @@ class Entity:
         CURSOR.execute("""
             UPDATE entities
             SET name = ?,
+                killed = ?,
                 location_pk = ?,
                 updated_at = ?
             WHERE pk = ?""",
-            (self.name, self.location_pk, now(), self.pk))
+            (self.name, self.killed, self.location_pk, now(), self.pk))
         DB.commit()
         return self
 
@@ -183,6 +177,9 @@ class Entity:
 
     def __repr__(self):
         return json.dumps(vars(self))
+
+def to_dict(row, columns):
+    return {columns[i][0]: row[i] for i, _ in enumerate(row)}
 
 class Location:
     def __init__(self, row):
@@ -280,7 +277,7 @@ class Location:
             WHERE location_pk = ?
             ORDER BY id""",
             (self.pk,)):
-            yield Entity(row)
+            yield Entity(to_dict(row, CURSOR.description))
 
     def __repr__(self):
         return json.dumps(vars(self))
