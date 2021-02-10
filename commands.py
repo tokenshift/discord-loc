@@ -17,6 +17,9 @@ Removes an entity from location tracking.
 `loc kill {entity}`
 Marks an entity as ~~dead~~ without removing them.
 
+`loc res[urrect] {entity}`
+Bring a ~~dead~~ entity back to life.
+
 `loc rename {entity} {new name}`
 Renames an entity.
 
@@ -91,6 +94,21 @@ class Commands:
 
         if entity:
             entity.killed = True
+            entity.save()
+
+        return {
+            "send": {
+                "embed": self.generate_embed()
+            },
+            "update": True
+        }
+
+    def resurrect(self, entity_name):
+        """Remove the `killed` mark from an entity."""
+        entity = Entity.find(self.channel_id, entity_name)
+
+        if entity:
+            entity.killed = False
             entity.save()
 
         return {

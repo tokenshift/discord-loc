@@ -48,6 +48,8 @@ async def on_message(msg):
             ["remove", _],    commands.remove,
             ["rm", _],        commands.remove,
             ["kill", _],      commands.kill,
+            ["res", _],       commands.resurrect,
+            ["resurrect", _], commands.resurrect,
             ["rename", _, _], commands.rename,
             ["create", _],    commands.create,
             ["delete", _],    commands.delete,

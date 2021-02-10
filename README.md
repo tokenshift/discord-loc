@@ -69,8 +69,14 @@ Display all entities and locations.
 Sets an entity's location. `{entity}` and `{location}` can be either names or
 numbers assigned by loc.
 
-`loc kill {entity}`  
+`loc remove {entity}`  
 Removes an entity from location tracking.
+
+`loc kill {entity}`  
+Marks an entity as ~~dead~~ without removing them.
+
+`loc res[urrect] {entity}`  
+Bring a ~~dead~~ entity back to life.
 
 `loc rename {entity} {new name}`  
 Renames an entity.
