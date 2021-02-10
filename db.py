@@ -1,6 +1,8 @@
 import atexit
 import datetime
+from glob import glob
 import json
+import logging
 import os
 import re
 import sqlite3
@@ -11,27 +13,31 @@ atexit.register(DB.close)
 CURSOR = DB.cursor()
 atexit.register(CURSOR.close)
 
-CURSOR.execute("""CREATE TABLE IF NOT EXISTS channels (
+CURSOR.execute("""CREATE TABLE IF NOT EXISTS migrations (
     id INTEGER PRIMARY KEY,
-    sticky_id INTEGER,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)""")
-CURSOR.execute("""CREATE TABLE IF NOT EXISTS entities (
-    pk INTEGER PRIMARY KEY,
-    id INTEGER NOT NULL,
-    channel_id INTEGER NOT NULL,
-    name STRING NOT NULL,
-    location_pk INTEGER,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)""")
-CURSOR.execute("""CREATE TABLE IF NOT EXISTS locations (
-    pk INTEGER PRIMARY KEY,
-    id INTEGER NOT NULL,
-    channel_id INTEGER NOT NULL,
-    name STRING NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)""")
+    migration_file STRING NOT NULL,
+    applied DATETIME DEFAULT CURRENT_TIMESTAMP)""");
 DB.commit()
+
+for migration_file in sorted(glob("./migrations/*.sql")):
+    CURSOR.execute("""
+        SELECT COUNT(*) FROM migrations
+        WHERE migration_file = ?""",
+        (migration_file,))
+    (count,) = CURSOR.fetchone()
+
+    if count > 0:
+        continue
+
+    print(f'Applying migration: {migration_file}')
+
+    with open(migration_file) as f:
+        CURSOR.executescript(f.read())
+        CURSOR.execute("""
+            INSERT INTO migrations (migration_file)
+            VALUES (?)""",
+            (migration_file,))
+        DB.commit()
 
 def now():
     return datetime.datetime.now()
