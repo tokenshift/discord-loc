@@ -23,6 +23,10 @@ async def on_ready():
         "user": f'{client.user.name}#{client.user.discriminator}'
     })
 
+    await client.change_presence(activity = discord.Activity(
+        name = "loc help",
+        type = discord.ActivityType.watching))
+
 @client.event
 async def on_message(msg):
     if msg.author == client.user:
