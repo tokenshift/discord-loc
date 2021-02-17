@@ -155,6 +155,28 @@ class Entity:
         else:
             return Entity.create(channel_id, entity_name)
 
+    def add_tag(self, tag):
+        CURSOR.execute("""
+            INSERT INTO entity_tags (entity_pk, tag)
+            VALUES (?, ?)""",
+            (self.pk, tag.strip()))
+        DB.commit()
+
+    def remove_tag(self, tag):
+        CURSOR.execute("""
+            DELETE FROM entity_tags
+            WHERE entity_pk = ? AND tag = ? COLLATE NOCASE""",
+            (self.pk, tag.strip()))
+        DB.commit()
+
+    def get_tags(self):
+        CURSOR.execute("""
+            SELECT tag
+            FROM entity_tags
+            WHERE entity_pk = ?""",
+            (self.pk,))
+        return set([row[0] for row in CURSOR.fetchall()])
+
     def save(self):
         CURSOR.execute("""
             UPDATE entities

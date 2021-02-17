@@ -32,6 +32,9 @@ Deletes a location from tracking.
 `loc update {location} {new name}`
 Renames a location.
 
+`log [un]tag {entity} {tag}`
+Tag or untag an entity with e.g. a status effect.
+
 `loc reset`
 Clear out all locations and entities."""
 
@@ -171,6 +174,33 @@ class Commands:
             "update": True
         }
 
+    def tag(self, entity_name, tag):
+        """Tags an entity."""
+        entity = Entity.find(self.channel_id, entity_name)
+        if entity:
+            entity.add_tag(tag.strip())
+
+        return {
+            "send": {
+                "embed": self.generate_embed()
+            },
+            "update": True
+        }
+
+    def untag(self, entity_name, tag):
+        """Untags an entity."""
+        entity = Entity.find(self.channel_id, entity_name)
+        if entity:
+            entity.remove_tag(tag.strip())
+
+        return {
+            "send": {
+                "embed": self.generate_embed()
+            },
+            "update": True
+        }
+
+
     def reset(self):
         """Clear out all locations and entities."""
         for entity in Entity.all(self.channel_id):
@@ -207,10 +237,16 @@ class Commands:
                 lines.append("*Empty*")
 
             for entity in location.get_entities():
+                entity_name = entity.name
+                entity_tags = entity.get_tags()
+
                 if entity.killed:
-                    lines.append(f'~~{entity.name}~~ ({entity.id})')
+                    entity_name = f'~~{entity_name}~~'
+
+                if len(entity_tags) > 0:
+                    lines.append(f'{entity_name} ({entity.id}) - {", ".join(entity_tags)}')
                 else:
-                    lines.append(f'{entity.name} ({entity.id})')
+                    lines.append(f'{entity_name} ({entity.id})')
 
         unassigned_entities = list([e for e in Entity.all(self.channel_id) if e.location_pk == None])
         if len(unassigned_entities) > 0:

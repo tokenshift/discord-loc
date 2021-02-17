@@ -1,0 +1,4 @@
+CREATE TABLE entity_tags (
+  pk INTEGER PRIMARY KEY,
+  entity_pk INTEGER NOT NULL,
+  tag STRING NOT NULL);

@@ -58,6 +58,8 @@ async def on_message(msg):
             ["create", _],    commands.create,
             ["delete", _],    commands.delete,
             ["update", _, _], commands.update,
+            ["tag", _, _],    commands.tag,
+            ["untag", _, _],  commands.untag,
             ["reset", TAIL],  lambda *args: commands.reset(),
             _,                lambda *args: None)
 
